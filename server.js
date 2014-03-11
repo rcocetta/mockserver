@@ -1,9 +1,10 @@
-/*jslint node: true, es5: true, browser: false, devel: true, vars: true, nomen:true, forin: true, plusplus: true, todo: true, unparam: true */
+/*jslint node: true, browser: false, devel: true, vars: true, nomen:true, forin: true, plusplus: true, todo: true, unparam: true */
 /*global require*/
 
 /**
  * This is a node server used to mock the web service layer
  *  @author R.Cocetta
+ *  @todo: move the config out
  */
 
 "use strict";
@@ -26,19 +27,19 @@ var path = require('path'),
  * @param  {Object} res      Response
  */
 function serveStaticFile(filename, req, res, statusCode) {
-
     statusCode = statusCode || 200;
 
     try {
-        /*jslint stupid: true */
         log("[Mockserver] Getting file " + filename);
-        var fileContent = fs.readFileSync(__dirname + filename).toString();
-        /*jslint stupid: false */
-        res.send(statusCode, fileContent);
+        fs.readFile(__dirname + filename, function(err, data){
+            res.send(statusCode, data.toString());
+        });
+
     } catch (e) {
         res.send(404, "Couldn't find the file to be served.... grrrrrr ");
     }
 }
+
 
 /**
  * The mockresponses var contains the configuration for all the calls we want to mock... yes, I know, we can put this in a separate file,
