@@ -16,6 +16,7 @@ var path = require('path'),
     url = require('url'),
     counters = {},
     util = require("util"),
+    oldMockserver = require('wsmockapp_v0'),
     log = util.log;
 
 
@@ -91,7 +92,7 @@ var mockResponses = {
 
             var queryParams = url.parse(req.url, true).query,
                 key;
-            res.write("Echoing your params\n\n\n");
+            res.write("Echoing your params new version\n\n\n");
             for (key in queryParams) {
                 res.write("\n" + key + " = " + queryParams[key]);
             }
@@ -120,7 +121,7 @@ var mockResponses = {
             }
         }
     },
-    // Sepcial call to reset all counters for test scenarios
+    // Special call to reset all counters for test scenarios
     "/reset": {
         "type": "function",
         "fn": function (req, res) {
@@ -148,6 +149,7 @@ function serveStaticFileForKey(key, req, res) {
  */
 
 app.use(express.logger());
+app.use('/v0', oldMockserver);
 app.configure(function () {
 
     log("[Mockserver] Creating routes");
