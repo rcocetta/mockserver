@@ -7,8 +7,7 @@ var util = require("util"),
 
 
 /**
- * The mockresponses var contains the configuration for all the calls we want to mock... yes, I know, we can put this in a separate file,
- * but for the moment it's here.
+ * The mockresponses var contains the configuration for all the calls we want to mock.
  *
  * The behaviour of every route is determined by the "Type" property:
  *        - function: the server will run the function defined in the fn property
