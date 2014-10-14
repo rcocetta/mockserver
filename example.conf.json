@@ -1,0 +1,35 @@
+
+{
+    "ext_libs": {
+        "example_lib": "./ext_libs/example.js",
+        "counters": "./ext_libs/counters.js"
+    },
+    "mockResponses": {
+        "/exampleStatic": {
+            "type": "staticFile",
+            "path": "/mockfiles/res_static_1.json"
+        },
+        "/exampleFunction": {
+            "type": "function",
+            "fn": "example_lib.exampleFunction1"
+        },
+        "/exampleStaticPost": {
+            "method": "post",
+            "type": "staticFile",
+            "path": "/mockfiles/res_static_post.json"
+        },
+        "/echo": {
+            "type": "function",
+            "fn": "example_lib.echo"
+        },
+        "/counter": {
+            "type": "function",
+            "fn": "counters.count"
+
+        },
+        "/reset": {
+            "type": "function",
+            "fn": "counters.reset"
+        }
+    }
+}

@@ -1,5 +1,4 @@
-/*jslint node: true, browser: false, devel: true, vars: true, nomen:true, forin: true, plusplus: true, todo: true, unparam: true */
-/*global require*/
+/*jshint node: true, browser: false, devel: true, white: true, forin: true, plusplus: true*/
 
 /**
  * This is a node server used to mock the web service layer
@@ -19,10 +18,7 @@ var path = require('path'),
     oldMockserver = require('wsmockapp_v0'),
     log = util.log,
     mockUtils = require("./utils.js"),
-    mockResponses = require("./mockRoutes");
-
-
-
+    ext_libs = {};
 
 /**
  * Serves the static file associated with a key
@@ -30,41 +26,65 @@ var path = require('path'),
  * @param  {Object} req The request obj
  * @param  {Object} res The response object
  */
-function serveStaticFileForKey(key, req, res) {
-    log("[Mockserver] Serving static file" + __dirname);
+function serveStaticFileForKey(key, mockResponses, req, res) {
+    log("[Mockaccino] Serving static file" + __dirname);
     mockUtils.serveStaticFile(mockResponses[key].path, req, res);
 }
 
-
 /**
- * There you go, here is where the magic happens and the responses are
- * assigned to the routes
+ * Loads the external libs
+ * @method loadExternalLibs
+ * @param  {object}         cfg the config object
  */
+function loadExternalLibs(cfg) {
+    Object.keys(cfg.ext_libs).forEach(function (key) {
+        ext_libs[key] = require(cfg.ext_libs[key]);
+    });
+}
 
-app.use(express.logger());
-app.use('/v0', oldMockserver);
-app.configure(function () {
+function getMockserver(cfg) {
+    var mockResponses;
 
-    log("[Mockserver] Creating routes");
+    if (!cfg) {
+        throw "FATAL: Mockaccino needs a config object to work";
+    }
 
-    var key;
-    // for each line in the mockresponses configuration, creates a route
-    // that either serves a file or runs a function
-    for (key in mockResponses) {
-        if (mockResponses[key].type === "staticFile") {
-            if (mockResponses[key].method) {
-                app[mockResponses[key].method](key, serveStaticFileForKey.bind(this, key));
-            } else {
-                app.get(key, serveStaticFileForKey.bind(this, key));
-            }
-        } else if (mockResponses[key].type === "function") {
-            if (mockResponses[key].method) {
-                app[mockResponses[key].method](key, mockResponses[key].fn);
-            } else {
-                app.get(key, mockResponses[key].fn);
+    mockResponses = cfg.mockResponses;
+
+    //loads the libraries passed in the config
+    loadExternalLibs(cfg);
+
+    /**
+     * There you go, here is where the magic happens and the responses are
+     * assigned to the routes
+     */
+    app.use(express.logger());
+    app.use('/v0', oldMockserver);
+    app.configure(function () {
+
+        log("[Mockaccino] Creating routes");
+
+        var key;
+        // for each line in the mockresponses configuration, creates a route
+        // that either serves a file or runs a function
+        for (key in mockResponses) {
+            if (mockResponses[key].type === "staticFile") {
+                if (mockResponses[key].method) {
+                    app[mockResponses[key].method](key, serveStaticFileForKey.bind(this, key, mockResponses));
+                } else {
+                    app.get(key, serveStaticFileForKey.bind(this, key, mockResponses));
+                }
+            } else if (mockResponses[key].type === "function") {
+                if (mockResponses[key].method) {
+                    console.log(mockUtils.walkJSONDot(ext_libs, mockResponses[key].fn));
+                    app[mockResponses[key].method](key, mockUtils.walkJSONDot(ext_libs, mockResponses[key].fn));
+                } else {
+                    app.get(key, mockUtils.walkJSONDot(ext_libs, mockResponses[key].fn));
+                }
             }
         }
-    }
-});
+    });
+    return app;
+}
 
-module.exports = app;
+module.exports = getMockserver;
