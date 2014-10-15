@@ -1,7 +1,7 @@
 {
   "name": "wsmockapp",
   "description": "A server that mocks webservices",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "contributors": [
     {
       "name": "Riccardo Cocetta",
