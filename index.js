@@ -1,6 +1,8 @@
-/*jslint node: true, es5: true, browser: false, devel: true, vars: true, white: true, forin: true, plusplus: true, todo: true, nomen:true */
+/*jshint node:true, white:true */
 
-var app = require('./server');
-
-require('http').createServer(app);
-module.exports = app;
+function getApp(cfg) {
+    var app = require('./server')(cfg);
+    require('http').createServer(app);
+    return app;
+}
+module.exports = getApp;

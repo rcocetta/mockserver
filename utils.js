@@ -14,9 +14,10 @@ utils = {
         statusCode = statusCode || 200;
         log("[Mockaccino] Getting file " + filename);
         fs.readFile(__dirname + filename, function(err, data){
-            if (err) {
+            if (!err) {
                 res.send(statusCode, data.toString());
             } else {
+                log("[ERROR] " + err);
                 res.send(404, "Couldn't find the file to be served.... grrrrrr " + __dirname + filename);
             }
         });
